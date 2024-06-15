@@ -1,0 +1,90 @@
+﻿@page "/electronics"
+@using ElectronicsApplication.Models
+@using ElectronicsApplication.Services
+@inject ElectronicServices electronicService
+@inject NavigationManager NavigationManager
+
+<h3>Electronics List</h3>
+
+
+@if (electronics == null)
+{
+    <p><em>No data found</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in electronics)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>
+                        <a href="@($"/electronics/edit/{item.Id}")">Edit</a>
+                        <a @onclick="() => DeleteElectronic(item.Id)">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p><strong>Error:</strong> @errorMessage</p>
+}
+
+<div class="mt-4">
+    <a href="@($"/addElectronics")">Add New Electronic</a>
+</div>
+@code {
+
+    private List<Electronics>? electronics; 
+    private string? errorMessage;
+
+    /// <summary>
+    /// method to initial the data and fetch the data from the database.
+    /// </summary>
+    /// <returns></returns>
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            electronics = await electronicService.GetProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }   
+    /// <summary>
+    /// private method to delete the electronic from the databse
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+
+    private async Task DeleteElectronic(int id)
+    {
+        try
+        {
+            await electronicService.DeleteProductAsync(id);
+            electronics = await electronicService.GetProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred while deleting: {ex.Message}";
+        }
+    }
+   
+}

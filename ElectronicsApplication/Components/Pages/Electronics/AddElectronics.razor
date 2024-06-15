@@ -1,0 +1,49 @@
+﻿@page "/addElectronics"
+@using ElectronicsApplication.Models
+@using ElectronicsApplication.Services
+@inject ElectronicServices ItemService
+@inject NavigationManager NavigationManager
+
+<h3>Add New Electronic Item</h3>
+
+@if (errorMessage != null)
+{
+    <p><strong>Error:</strong> @errorMessage</p>
+}
+
+<EditForm Model="@NewItem" OnValidSubmit="SubmitForm" FormName="AddElectronicsForm" method="post">
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" class="form-control" @bind="@NewItem.Name" required />
+    </div>
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <input type="text" id="description" class="form-control" @bind="@NewItem.Description" required />
+    </div>
+    <div class="form-group">
+        <label for="price">Price:</label>
+        <input type="number" id="price" class="form-control" @bind="@NewItem.Price" step="0.01" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Add Item</button>
+</EditForm>
+
+@code {
+    public Electronics NewItem { get; set; } = new Electronics();
+    string? errorMessage;
+    /// <summary>
+    /// method to save data in database and redirecting to electronics page while adding a new electronic data 
+    /// </summary>
+    /// <returns></returns>
+    async Task SubmitForm()
+    {
+        try
+        {
+            await ItemService.AddProductAsync(NewItem);
+            NavigationManager.NavigateTo("/electronics");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error adding electronic item: {ex.Message}";
+        }
+    }
+}
